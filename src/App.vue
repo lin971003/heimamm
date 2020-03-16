@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-      <router-link to='/'>我是APP.vue组件</router-link>
+  <div id="app" class="app">
+      <router-view></router-view>
   </div>
 </template>
 
