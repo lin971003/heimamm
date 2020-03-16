@@ -1,5 +1,6 @@
 <template>
   <div class="login">
+    <!-- 左边盒子 -->
     <div class="leftbox">
       <!-- 标题内容 -->
       <div class="title">
@@ -45,15 +46,25 @@
           <el-button class="btn" type="primary" @click="onSubmit">登录</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button class="btn" type="primary">注册</el-button>
+          <el-button class="btn" type="primary" @click="register" >注册</el-button>
         </el-form-item>
       </el-form>
+
+
     </div>
+    <!-- 右边图片 -->
     <img src="../../assets/login_banner_ele.png" alt class="rightbox" />
+
+     <!-- register组件使用 -->
+        <register ref="register" ></register>
+
   </div>
 </template>
 
 <script>
+//导入组件
+import register from './components/register.vue'
+
 export default {
   data() {
     return {
@@ -100,6 +111,10 @@ export default {
       }
     };
   },
+  components:{
+    //注册组件
+    register,
+  },
   methods: {
     //登录按钮验证
     onSubmit() {
@@ -117,6 +132,10 @@ export default {
           // return false;
         }
       });
+    },
+    //注册按钮事件
+    register(){
+      this.$refs.register.dialogFormVisible=true;
     }
   }
 };
