@@ -25,7 +25,7 @@
               <el-input prefix-icon="el-icon-key" v-model="form.logincode"></el-input>
             </el-col>
             <el-col :span="8">
-              <img class="logincode" src="../../assets/login_captcha.png" alt />
+              <img style="cursor:pointer" @click="imgChange" class="logincode" :src="imgUrl" alt />
             </el-col>
           </el-row>
         </el-form-item>
@@ -64,6 +64,16 @@
 <script>
 //导入组件
 import register from './components/register.vue'
+//自定义表单规则  手机号码验证
+ let checkPhone = (rules, value, callback) =>{
+  let reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+    if (reg.test(value)) {
+           callback();
+        }else{
+          callback(new Error('手机号格式不正确!!'))
+        }
+ }
+
 
 export default {
   data() {
@@ -82,12 +92,7 @@ export default {
         //手机号码验证规则
         phone: [
           { required: true, message: "请输入手机号", trigger: "blur" },
-          {
-            min: 11,
-            max: 11,
-            message: "长度必须为11位数的手机号",
-            trigger: "blur"
-          }
+         { validator: checkPhone, trigger: 'blur' }
         ],
         //密码验证规则
         password: [
@@ -108,7 +113,9 @@ export default {
          isCheck:[
             {type: 'array', required: true, message: '请勾选已阅读', trigger:'change' }
           ],
-      }
+      },
+      //图片验证码的URL
+    imgUrl:process.env.VUE_APP_OnlineURL+'/captcha?type=sendsms&t='+Date.now(),
     };
   },
   components:{
@@ -136,6 +143,10 @@ export default {
     //注册按钮事件
     register(){
       this.$refs.register.dialogFormVisible=true;
+    },
+    //点击切换验证码图片功能
+    imgChange(){
+      this.imgUrl=process.env.VUE_APP_OnlineURL+'/captcha?type=sendsms&t='+Date.now();
     }
   }
 };

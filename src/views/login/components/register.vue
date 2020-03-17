@@ -25,7 +25,7 @@
             <el-input v-model="form.imgcode" autocomplete="off"></el-input>
           </el-col>
           <el-col :span="7">
-            <img class="img" src="../../../assets/login_captcha.png" alt />
+            <img style="cursor: pointer" @click="imgChange" class="img" :src="imgUrl" alt />
           </el-col>
         </el-row>
       </el-form-item>
@@ -36,7 +36,9 @@
             <el-input v-model="form.logincode" autocomplete="off"></el-input>
           </el-col>
           <el-col :span="7">
-            <button class="img btn">获取用户验证码</button>
+            <button class="img btn" @click="getCode" :disabled='time!==0' style="cursor: pointer" >
+              {{time===0 ? '获取用户验证码' : time}}
+              </button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -49,6 +51,32 @@
 </template>
 
 <script>
+//导入axios
+// import axios from 'axios'
+
+//导入register
+import {apigetcode} from '../../../api/register.js'
+
+//自定义表单规则  手机号码验证
+ let checkPhone = (rules, value, callback) =>{
+  let reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+    if (reg.test(value)) {
+           callback();
+        }else{
+          callback(new Error('手机号格式不正确!!'))
+        }
+ }
+//自定义表单规则  邮箱验证
+ let checkEmail = (rules, value, callback) =>{
+  let reg = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+    if (reg.test(value)) {
+           callback();
+        }else{
+          callback(new Error('邮箱格式不正确!!'))
+        }
+ }
+
+
 export default {
   data() {
     return {
@@ -71,10 +99,12 @@ export default {
         ],
         email:[
                 { required: true, message: '请输入邮箱', trigger: 'blur' },
+                { validator: checkEmail, trigger: 'blur' }
         ],
         phone:[
                 { required: true, message: '请输入手机号', trigger: 'blur' },
-                { min: 11, max:11, message: '长度在 11 个字符', trigger: 'blur' }
+                { validator: checkPhone, trigger: 'blur' }
+              
         ],
         password:[
                 { required: true, message: '请输入密码', trigger: 'blur' },
@@ -85,10 +115,15 @@ export default {
         ],
         logincode:[
                 { required: true, message: '请输入手机验证码', trigger: 'blur' },
-                { min: 6, max: 6, message: '长度在 6 个字符', trigger: 'blur' }
+                { min: 4, max: 4, message: '长度在 4 个字符', trigger: 'blur' }
         ],
     },
-        
+    //图片验证码的URL
+    imgUrl:process.env.VUE_APP_OnlineURL+'/captcha?type=sendsms&t='+Date.now(),
+    //定时器
+    timer:null,
+    //倒计时
+    time:0,  
     };
   },
   methods: {
@@ -100,6 +135,44 @@ export default {
                   this.$message.error('验证不通过!!')
               }
           })
+      },
+      //点击切换图片验证码
+      imgChange(){
+        this.imgUrl=process.env.VUE_APP_OnlineURL+'/captcha?type=sendsms&t='+Date.now();
+      },
+      //点击获取手机验证码
+      getCode(){
+        //初始化事件
+        this.time=60;
+        //设置一个计时器
+        this.timer = setInterval(()=>{
+            this.time--;
+            if(this.time===0){
+              clearInterval(this.timer);
+            }
+        },1000)
+
+        //获取短信验证码
+          apigetcode(this.form.imgcode,this.form.phone).then(res=>{
+              window.console.log(res);
+          }).catch(err=>{
+            window.console.log(err);
+          });          
+          // axios({
+          //   url:process.env.VUE_APP_OnlineURL+'/sendsms',
+          //   method:'POST',
+          //   data:{
+          //     code:this.form.imgcode,
+          //     phone:this.form.phone,
+          //   },
+          //   //********携带跨域  特别注意******
+          //   withCredentials:true
+          // }).then(res=>{
+          //     window.console.log(res);
+          // }).catch(err=>{
+          //   window.console.log(err);
+          // })
+
       }
   },
 };
@@ -134,6 +207,7 @@ export default {
       .img {
         width: 143px;
         height: 41px;
+        
       }
       .btn {
         border: 1px solid rgba(211, 215, 223, 1);
