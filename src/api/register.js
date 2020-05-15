@@ -3,7 +3,7 @@
 import axios from 'axios'
 export function apigetcode(code,phone){
    return axios({
-        url:process.env.VUE_APP_OnlineURL+'/sendsms',
+        url:process.env.VUE_APP_baseURL+'/sendsms',
         method:'POST',
         data:{
             code,
@@ -12,3 +12,27 @@ export function apigetcode(code,phone){
         withCredentials:true
     });
 }   
+
+//用来封装注册接口的API
+export function apiRegister({
+    username,
+    phone,
+    email,
+    avatar,
+    password,
+    rcode
+}){
+    return axios({
+        url:process.env.VUE_APP_baseURL+'/register',
+        method:'POST',
+        data:{
+            username,
+            phone,
+            email,
+            avatar,
+            password,
+            rcode
+        },
+        withCredentials:true
+    });
+}
